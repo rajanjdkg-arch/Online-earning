@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Affiliate Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 15px;
+      background:#f5f5f5;
+    }
+    h1{font-size:24px;margin-bottom:10px;}
+    .card{
+      background:#fff;
+      padding:15px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom:15px;
+    }
+    .pending{
+      background:#ffeb3b;
+      padding:5px 8px;
+      border-radius:5px;
+      display:inline-block;
+      margin-bottom:5px;
+    }
+    .available{
+      background:#4caf50;
+      color:#fff;
+      padding:5px 8px;
+      border-radius:5px;
+      display:inline-block;
+      margin-bottom:5px;
+    }
+    button{
+      background:#000;
+      color:#fff;
+      border:none;
+      padding:8px 14px;
+      border-radius:5px;
+      font-size:14px;
+      margin-top:8px;
+    }
+    input{
+      width:100%;
+      padding:8px;
+      margin-top:4px;
+      margin-bottom:8px;
+      border-radius:5px;
+      border:1px solid #ccc;
+      font-size:13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💰 Affiliate Dashboard</h1>
+
+  <div class="card">
+    <p><strong>Affiliate ID:</strong> <span id="affId"></span></p>
+    <p><strong>Total Sales:</strong> <span id="sales">0</span></p>
+
+    <p class="pending">
+      Pending (15 days): ₹<span id="pending">0</span>
+    </p>
+    <br>
+    <p class="available">
+      Available for Withdrawal: ₹<span id="available">0</span>
+    </p>
+    <p><strong>Total Commission Earned:</strong> ₹<span id="total">0</span></p>
+
+    <button onclick="requestWithdrawal()">Withdraw</button>
+    <p id="withdrawMsg" style="font-size:13px;margin-top:6px;"></p>
+  </div>
+
+  <div class="card">
+    <p><strong>Your Shop Link (share on Insta):</strong></p>
+    <input id="shareLink" readonly>
+    <small>Is link ko story / bio me lagao. Jo bhi yahan se purchase karega, uska commission tumhare account me aayega.</small>
+  </div>
+
+  <script>
+    // URL se affiliate ID: dashboard.html?id=AB12CD
+    const params = new URLSearchParams(window.location.search);
+    const affId = params.get('id');
+
+    document.getElementById('affId').textContent = affId || 'Not set';
+
+    let affiliates = JSON.parse(localStorage.getItem('affiliates')) || {};
+
+    if (affId && affiliates[affId]) {
+      const data = affiliates[affId];
+
+      // 15 din ka hold logic
+      const daysSinceJoin = (new Date() - new Date(data.joinDate)) / (1000*60*60*24);
+      const available = daysSinceJoin >= 15 ? data.pendingCommission : 0;
+
+      document.getElementById('sales').textContent = data.sales;
+      document.getElementById('pending').textContent = data.pendingCommission.toFixed(2);
+      document.getElementById('available').textContent = available.toFixed(2);
+      document.getElementById('total').textContent = data.totalCommission.toFixed(2);
+
+      const shopLink = window.location.origin + '/Shop.-/Shop.html?aff=' + affId;
+      document.getElementById('shareLink').value = shopLink;
+    } else {
+      document.getElementById('shareLink').value = 'Affiliate data not found (pehle sale aane do).';
+    }
+
+    function requestWithdrawal() {
+      const available = parseFloat(document.getElementById('available').textContent);
+
+      if (available <= 0) {
+        document.getElementById('withdrawMsg').textContent =
+          'Abhi commission 15 din complete nahi hua ya koi available amount nahi hai.';
+        return;
+      }
+
+      document.getElementById('withdrawMsg').textContent =
+        `✅ Withdrawal request received: ₹${available.toFixed(2)} (manual UPI payment tum karoge).`;
+    }
+  </script>
+</body>
+</html>
