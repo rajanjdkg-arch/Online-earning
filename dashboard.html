@@ -78,11 +78,10 @@
   <div class="card">
     <p><strong>Your Shop Link (share on Insta):</strong></p>
     <input id="shareLink" readonly>
-    <small>Is link ko story / bio me lagao. Jo bhi yahan se purchase karega, uska commission tumhare account me aayega.</small>
+    <small>Is link ko story / bio me lagao. Jo bhi yahan se purchase karega, commission tumhare account me aayega.</small>
   </div>
 
   <script>
-    // URL se affiliate ID: dashboard.html?id=AB12CD
     const params = new URLSearchParams(window.location.search);
     const affId = params.get('id');
 
@@ -93,7 +92,6 @@
     if (affId && affiliates[affId]) {
       const data = affiliates[affId];
 
-      // 15 din ka hold logic
       const daysSinceJoin = (new Date() - new Date(data.joinDate)) / (1000*60*60*24);
       const available = daysSinceJoin >= 15 ? data.pendingCommission : 0;
 
@@ -102,7 +100,7 @@
       document.getElementById('available').textContent = available.toFixed(2);
       document.getElementById('total').textContent = data.totalCommission.toFixed(2);
 
-      const shopLink = window.location.origin + '/Shop.-/Shop.html?aff=' + affId;
+      const shopLink = window.location.origin + '/Shop.-/?aff=' + affId;
       document.getElementById('shareLink').value = shopLink;
     } else {
       document.getElementById('shareLink').value = 'Affiliate data not found (pehle sale aane do).';
@@ -113,12 +111,12 @@
 
       if (available <= 0) {
         document.getElementById('withdrawMsg').textContent =
-          'Abhi commission 15 din complete nahi hua ya koi available amount nahi hai.';
+          'Abhi 15 din complete nahi hue ya amount 0 hai.';
         return;
       }
 
       document.getElementById('withdrawMsg').textContent =
-        `✅ Withdrawal request received: ₹${available.toFixed(2)} (manual UPI payment tum karoge).`;
+        `✅ Withdrawal request received: ₹${available.toFixed(2)} (tum manual UPI se doge).`;
     }
   </script>
 </body>
