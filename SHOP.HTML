@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CK Traders - Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 15px;
+      background:#fafafa;
+    }
+    h1{font-size:26px;margin-bottom:10px;}
+    .aff-box{
+      background:#e3f2fd;
+      padding:10px;
+      border-radius:8px;
+      margin-bottom:15px;
+      font-size:14px;
+    }
+    .product{
+      border:1px solid #ddd;
+      border-radius:8px;
+      padding:10px;
+      margin-bottom:12px;
+      background:#fff;
+    }
+    .product h3{margin:0 0 5px;}
+    .product p{margin:0 0 8px;font-size:14px;}
+    button{
+      background:#000;
+      color:#fff;
+      border:none;
+      padding:8px 14px;
+      border-radius:5px;
+      font-size:14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛍️ CK Traders Shop</h1>
+
+  <!-- Affiliate info -->
+  <div id="affBox" class="aff-box" style="display:none;">
+    Order will support affiliate: <strong id="affIdText"></strong><br>
+    Share this link: <span id="affLinkText" style="word-break:break-all;"></span>
+  </div>
+
+  <!-- Products -->
+  <div class="product">
+    <h3>Premium Oversized T‑Shirt</h3>
+    <p>Price: ₹999</p>
+    <button onclick="buyProduct(999)">Buy Now (Paid)</button>
+  </div>
+
+  <div class="product">
+    <h3>Premium Hoodie</h3>
+    <p>Price: ₹1499</p>
+    <button onclick="buyProduct(1499)">Buy Now (Paid)</button>
+  </div>
+
+  <script>
+    // ====== 1. URL se affiliate ID pakdo ======
+    const params = new URLSearchParams(window.location.search);
+    const affId = params.get('aff');
+
+    if (affId) {
+      // current affiliate save
+      localStorage.setItem('current_affiliate', affId);
+
+      // affiliate info box
+      document.getElementById('affIdText').textContent = affId;
+      document.getElementById('affLinkText').textContent =
+        window.location.origin + window.location.pathname + '?aff=' + affId;
+      document.getElementById('affBox').style.display = 'block';
+    }
+
+    // ====== 2. Product purchase + commission track ======
+    function buyProduct(amount) {
+      const aid = localStorage.getItem('current_affiliate');
+
+      if (!aid) {
+        alert('Normal order placed (no affiliate link used).');
+        return;
+      }
+
+      // Yahan real life me Razorpay paid success ke baad ye function call karna hai
+      const commission = amount * 0.07; // 7%
+
+      // Affiliates data localStorage me
+      let affiliates = JSON.parse(localStorage.getItem('affiliates')) || {};
+
+      if (!affiliates[aid]) {
+        affiliates[aid] = {
+          sales: 0,
+          pendingCommission: 0,
+          availableCommission: 0,
+          totalCommission: 0,
+          joinDate: new Date().toISOString()
+        };
+      }
+
+      affiliates[aid].sales += 1;
+      affiliates[aid].pendingCommission += commission;
+      affiliates[aid].totalCommission += commission;
+
+      localStorage.setItem('affiliates', JSON.stringify(affiliates));
+
+      alert(
+        `✅ Paid order success!
+Affiliate ${aid} ko ₹${commission.toFixed(2)} commission (15 din pending).`
+      );
+    }
+  </script>
+</body>
+</html>
